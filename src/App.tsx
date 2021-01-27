@@ -74,7 +74,8 @@ const Loading: FC<{}> = () =>
   </div>
 
 const PokemonPage: FC<{ pokemon: string }> = ({ pokemon }) => {
-  const {setSelected, fetchPokemonGifs} = useStore();
+  const setSelected = useStore(state => state.setSelected);
+  const fetchPokemonGifs = useStore(state => state.fetchPokemonGifs);
   const gifsData = useStore(state => state.pokemonGifs[pokemon]);
   useEffect(() => {
     if (gifsData?.status !== FetchStatus.DONE) {
@@ -100,7 +101,9 @@ const PokemonPage: FC<{ pokemon: string }> = ({ pokemon }) => {
 }
 
 function App() {
-  const {setSelected, pokemonList, selected} = useStore();
+  const setSelected = useStore(state => state.setSelected);
+  const pokemonList = useStore(state => state.pokemonList);
+  const selected = useStore(state => state.selected);
   if (selected) {
     return <PokemonPage pokemon={selected}/>
   }
