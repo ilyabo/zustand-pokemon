@@ -47,11 +47,15 @@ export const useStore = create<Store>(
       update({ status: FetchStatus.LOADING });
       const doFetch = async () => {
         const response = await fetch(makeGiphySearchQuery(pokemon));
-        try {
-          const json = await response.json();
-          update({ status: FetchStatus.DONE, data: json });
-        } catch {
-          update({ status: FetchStatus.ERROR });
+        if (response.ok) {
+          try {
+            const json = await response.json();
+            update({ status: FetchStatus.DONE, data: json });
+          } catch {
+            update({ status: FetchStatus.ERROR });
+          }
+        } else {
+          update({ status: FetchStatus.ERROR })
         }
       };
       setTimeout(doFetch, 1000);
@@ -76,7 +80,7 @@ const PokemonPage: FC<{ pokemon: string }> = ({ pokemon }) => {
     if (gifsData?.status !== FetchStatus.DONE) {
       fetchPokemonGifs(pokemon);
     }
-  }, [gifsData?.status, pokemon, fetchPokemonGifs]);
+  }, []);
   return (
     <section className="PokemonPage">
       <button onClick={()=> setSelected(undefined)}>&lt;&lt; Back</button>
@@ -84,7 +88,7 @@ const PokemonPage: FC<{ pokemon: string }> = ({ pokemon }) => {
       {!gifsData || gifsData.status === FetchStatus.LOADING
         ? <Loading/>
         : gifsData.status === FetchStatus.ERROR
-        ? <div>Error</div>
+        ? <div>Fetch error</div>
         : <div className="PokemonGifs">
             {gifsData.data.data.map((d, i) => (
               <img key={i} src={d.images.fixed_height.url} alt={pokemon} />
@@ -105,7 +109,7 @@ function App() {
       {!pokemonList || pokemonList?.status === FetchStatus.LOADING
         ? <Loading/>
         : pokemonList?.status === FetchStatus.ERROR
-        ? <div>Error</div>
+        ? <div>Fetch error</div>
         : pokemonList.data.map(name =>
             <div
               key={name} className="PokemonCard button"
